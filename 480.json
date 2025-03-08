@@ -1,0 +1,6 @@
+{
+    "vcenter_server" : "vcenter.cameron.local",
+    "vm_folder" : "BASEVM",
+    "esxi_host" : "192.168.3.225",
+    "default_network" : "480-WAN"
+}
