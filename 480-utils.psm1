@@ -136,3 +136,66 @@ function FullClone([Parameter(Mandatory = $true)] $selected_vm, [Parameter(Manda
 
     Write-Host "Full Clone $finalCloneName created successfully!" -ForegroundColor Green
 }
+
+
+function New-Network {
+    param(
+        [string]$SwitchName,
+        [string]$PortGroupName
+    )
+
+    $vmhost = Get-VMHost
+    New-VirtualSwitch -VMHost $vmhost -Name $SwitchName -NumPorts 128
+    New-VirtualPortGroup -VirtualSwitch (Get-VirtualSwitch -Name $SwitchName) -Name $PortGroupName
+    Write-Host "Created Virtual Switch '$SwitchName' and Port Group '$PortGroupName'."
+}
+
+function Get-IP {
+    param(
+        [string]$VMName
+    )
+
+    $vm = Get-VM -Name $VMName
+    $ip = $vm.Guest.IPAddress[0]
+    $mac = (Get-NetworkAdapter -VM $vm)[0].MacAddress
+
+    Write-Host "VM: $VMName"
+    Write-Host "IP Address: $ip"
+    Write-Host "MAC Address: $mac"
+}
+
+
+function Start-MyVM {
+    param(
+        [string]$VMName
+    )
+    Start-VM -VM (Get-VM -Name $VMName) | Out-Null
+    Write-Host "Started VM: $VMName"
+}
+
+function Stop-MyVM {
+    param(
+        [string]$VMName
+    )
+    Stop-VM -VM (Get-VM -Name $VMName) -Confirm:$false | Out-Null
+    Write-Host "Stopped VM: $VMName"
+}
+
+function Set-Network {
+    param(
+        [string]$VMName,
+        [string]$AdapterName,
+        [string]$NewNetworkName
+    )
+
+    $adapter = Get-NetworkAdapter -VM (Get-VM -Name $VMName) | Where-Object { $_.Name -eq $AdapterName }
+    
+    if ($adapter) {
+        Set-NetworkAdapter -NetworkAdapter $adapter -NetworkName $NewNetworkName -Confirm:$false
+        Write-Host "Changed $AdapterName on $VMName to $NewNetworkName."
+    }
+    else {
+        Write-Host "Error: Adapter $AdapterName not found on $VMName."
+    }
+}
+
