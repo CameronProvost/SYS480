@@ -1,5 +1,5 @@
 [vyos]
-blue1-fw ansible_host=10.0.17.101 ansible_user=vyos ansible_password=Wildcats123! hostname=fw-blue1 mac=00:50:56:aa:bb:cc wan_ip=10.0.17.200 lan_ip=10.0.5.2 lan=10.0.5.2/24 name_server=10.0.17.4 gateway=10.0.17.2
+blue1-fw ansible_host=10.0.17.101 ansible_user=vyos ansible_password=passwordhere hostname=fw-blue1 mac=00:50:56:aa:bb:cc wan_ip=10.0.17.200 lan_ip=10.0.5.2 lan=10.0.5.2/24 name_server=10.0.17.4 gateway=10.0.17.2
 
 [vyos:vars]
 ansible_python_interpreter=/usr/bin/python3
