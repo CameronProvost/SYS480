@@ -1,0 +1,12 @@
+network:
+  version: 2
+  ethernets:
+    {{ interface }}:
+      dhcp4: no
+      addresses:
+        - {{ static_ip }}/24
+      gateway4: {{ gateway }}
+      nameservers:
+        addresses:
+          - {{ dns }}
+
