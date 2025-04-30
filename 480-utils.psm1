@@ -241,7 +241,6 @@ function SetWindowsIP {
     $vm = Get-VM -Name $VM
     $Cred = Get-Credential -Message "Enter username and password for guest VM $VM"
 
-    # Combine commands into one line
     $script = "netsh interface ipv4 set address name=""$eth"" static $IP $mask $gate4 && netsh interface ipv4 set dnsservers name=""$eth"" static $nameserver primary"
 
     Invoke-VMScript -VM $vm -GuestCredential $Cred -ScriptText $script -ScriptType bat
