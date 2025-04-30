@@ -199,3 +199,52 @@ function Set-Network {
     }
 }
 
+function New-LinkedClone {
+    param(
+        [string]$BaseVMName,
+        [string]$NewVMName,
+        [string]$DatastoreName,
+        [string]$NetworkName
+    )
+
+    $baseVM = Get-VM -Name $BaseVMName
+    $snapshot = Get-Snapshot -VM $baseVM | Sort-Object -Property Created -Descending | Select-Object -First 1
+    $vmhost = $baseVM.VMHost
+    $datastore = Get-Datastore -Name $DatastoreName
+
+    if (!$snapshot) {
+        Write-Host "No snapshot found on $BaseVMName!" -ForegroundColor Red
+        return
+    }
+
+    $newVM = New-VM -Name $NewVMName -VM $baseVM -LinkedClone -ReferenceSnapshot $snapshot -VMHost $vmhost -Datastore $datastore -Confirm:$false
+
+    # Set network
+    Get-NetworkAdapter -VM $newVM | Set-NetworkAdapter -NetworkName $NetworkName -Confirm:$false
+
+    Write-Host "Linked clone $NewVMName created and connected to $NetworkName!" -ForegroundColor Green
+}
+
+function SetWindowsIP {
+    param (
+        [string]$VM,
+        [string]$eth,
+        [string]$IP,
+        [string]$mask,
+        [string]$gate4,
+        [string]$nameserver
+    )
+
+    $config = Get-480Config -config_path "$HOME/Documents/Github/SYS480/480.json"
+    480Connect -server $config.vcenter_server
+
+    $vm = Get-VM -Name $VM
+    $Cred = Get-Credential -Message "Enter username and password for guest VM $VM"
+
+    # Combine commands into one line
+    $script = "netsh interface ipv4 set address name=""$eth"" static $IP $mask $gate4 && netsh interface ipv4 set dnsservers name=""$eth"" static $nameserver primary"
+
+    Invoke-VMScript -VM $vm -GuestCredential $Cred -ScriptText $script -ScriptType bat
+
+    Write-Host "Static IP, gateway, and DNS configured for $VM on interface $eth"
+}
