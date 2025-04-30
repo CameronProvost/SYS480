@@ -19,5 +19,27 @@ rocky:
     ansible_python_interpreter: /usr/bin/python3
     nmcli_con_name: "ens34"
 
+ubuntu:
+  hosts:
+    10.0.5.78:
+      hostname: ubuntu1
+      static_ip: 10.0.5.30
+
+
+    10.0.5.79:
+      hostname: ubuntu2
+      static_ip: 10.0.5.31
+
+
+  vars:
+    ansible_user: deployer
+    ansible_ssh_pass: 
+    ansible_become: yes
+    ansible_python_interpreter: /usr/bin/python3
+
+
+
+
+
 
 
