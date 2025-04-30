@@ -1,0 +1,33 @@
+- name: Post configure ubuntu systems
+  hosts: ubuntu
+  gather_facts: yes
+
+  vars:
+    gateway: 10.0.5.2
+    dns: 10.0.17.4
+    interface: ens34
+
+  tasks:
+    - name: Set hostname
+      ansible.builtin.hostname:
+        name: "{{ hostname }}"
+
+    - name: Apply static IP config with netplan
+      ansible.builtin.template:
+        src: static-ip.j2
+        dest: /etc/netplan/01-netcfg.yaml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Add deployer to sudoers.d
+      copy:
+        dest: /etc/sudoers.d/deployer
+        content: "deployer ALL=(ALL) NOPASSWD:ALL"
+        mode: '0440'
+
+    - name: Reboot to apply config
+      ansible.builtin.reboot:
+
+
+
