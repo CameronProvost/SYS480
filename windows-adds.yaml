@@ -1,0 +1,61 @@
+- name: Create Active Directory
+  hosts: windows
+  gather_facts: no
+
+  vars_prompt:
+    - name: admin_password
+      prompt: "Enter the local admin password"
+      private: yes
+
+  tasks:
+    - name: Set Local Administrator's Password
+      win_user:
+        name: Administrator
+        password: "{{ admin_password }}"
+        update_password: always
+
+    - name: Set Hostname
+      win_hostname:
+        name: dc-blue1
+      register: hostname_result
+
+    - name: Reboot after Hostname Change
+      win_reboot:
+      when: hostname_result.reboot_required
+
+    - name: Add Active Directory Feature
+      win_feature:
+        name: AD-Domain-Services
+        state: present
+
+    - name: Create New Forest/Domain
+      win_domain:
+        dns_domain_name: blue.local
+        safe_mode_password: "{{ admin_password }}"
+      register: domain_install
+
+    - name: Reboot after Domain Creation
+      win_reboot:
+      when: domain_install.reboot_required
+
+    - name: Elevate "deployer" user to Domain Admins
+      community.windows.win_domain_user:
+        name: deployer
+        state: present
+        groups_action: add
+        groups:
+          - Domain Admins
+          - Enterprise Admins
+
+    - name: Add DNS Server Forwarder
+      win_shell: Add-DnsServerForwarder -IPAddress 10.0.5.2
+
+    - name: Create OU Structure
+      win_shell: |
+        Import-Module ActiveDirectory
+        New-ADOrganizationalUnit -Name blue1 -Path "DC=blue,DC=local"
+        New-ADOrganizationalUnit -Name Accounts -Path "OU=blue1,DC=blue,DC=local"
+        New-ADOrganizationalUnit -Name Groups -Path "OU=blue1,DC=blue,DC=local"
+        New-ADOrganizationalUnit -Name Computers -Path "OU=blue1,DC=blue,DC=local"
+        New-ADOrganizationalUnit -Name Servers -Path "OU=blue1,DC=blue,DC=local"
+        New-ADOrganizationalUnit -Name Workstations -Path "OU=blue1,DC=blue,DC=local"
