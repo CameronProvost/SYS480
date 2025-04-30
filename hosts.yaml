@@ -1,0 +1,23 @@
+                                                                                                             hosts.yaml                                                                                                                                
+rocky:
+  hosts:
+    rocky1:
+      ansible_host: 10.0.5.76
+      new_ip: 10.0.5.10
+      hostname: rocky1
+    rocky2:
+      ansible_host: 10.0.5.75
+      new_ip: 10.0.5.11
+      hostname: rocky2
+    rocky3:
+      ansible_host: 10.0.5.77
+      new_ip: 10.0.5.12
+      hostname: rocky3
+  vars:
+    ansible_user: deployer
+    ansible_ssh_pass: Wildcats123!
+    ansible_python_interpreter: /usr/bin/python3
+    nmcli_con_name: "ens34"
+
+
+
