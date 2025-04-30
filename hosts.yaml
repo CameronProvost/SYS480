@@ -15,7 +15,7 @@ rocky:
       hostname: rocky3
   vars:
     ansible_user: deployer
-    ansible_ssh_pass: Wildcats123!
+    ansible_ssh_pass: 
     ansible_python_interpreter: /usr/bin/python3
     nmcli_con_name: "ens34"
 
